@@ -1,8 +1,9 @@
 <?php
 require 'functions.php';
 
-$filename = "data/jadwal.json";
-$jadwal = readData($filename);
+// Baca data utama
+$data = readData();
+$jadwal = $data['jadwal'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $newData = [
@@ -13,9 +14,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         "dosen" => $_POST['dosen'],
         "sks" => $_POST['sks']
     ];
+
+    // Tambahkan data baru
     $jadwal[] = $newData;
+
+    // Urutkan jadwal berdasarkan hari dan jam
     sortJadwal($jadwal);
-    writeData($filename, $jadwal);
+
+    // Update kembali ke array utama
+    $data['jadwal'] = $jadwal;
+    writeData($data);
+
+    // Refresh halaman agar tidak double submit
     header("Location: jadwal.php");
     exit;
 }
@@ -28,11 +38,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <h1>Kelola Jadwal Kuliah</h1>
+
+    <!-- Form Tambah Jadwal -->
     <form method="POST">
         <input type="text" name="mata_kuliah" placeholder="Mata Kuliah" required>
-        <select name="hari">
-            <option>Senin</option><option>Selasa</option><option>Rabu</option>
-            <option>Kamis</option><option>Jumat</option><option>Sabtu</option><option>Minggu</option>
+        <select name="hari" required>
+            <option>Senin</option>
+            <option>Selasa</option>
+            <option>Rabu</option>
+            <option>Kamis</option>
+            <option>Jumat</option>
+            <option>Sabtu</option>
+            <option>Minggu</option>
         </select>
         <input type="time" name="jam" required>
         <input type="text" name="ruangan" placeholder="Ruangan" required>
@@ -42,19 +59,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </form>
 
     <h2>Daftar Jadwal</h2>
-    <table>
-        <tr><th>Hari</th><th>Jam</th><th>Mata Kuliah</th><th>Ruangan</th><th>Dosen</th><th>SKS</th></tr>
-        <?php foreach ($jadwal as $j): ?>
+    <?php if (count($jadwal) === 0): ?>
+        <p>Belum ada data jadwal.</p>
+    <?php else: ?>
+        <table>
             <tr>
-                <td><?= htmlspecialchars($j['hari']) ?></td>
-                <td><?= htmlspecialchars($j['jam']) ?></td>
-                <td><?= htmlspecialchars($j['mata_kuliah']) ?></td>
-                <td><?= htmlspecialchars($j['ruangan']) ?></td>
-                <td><?= htmlspecialchars($j['dosen']) ?></td>
-                <td><?= htmlspecialchars($j['sks']) ?></td>
+                <th>Hari</th>
+                <th>Jam</th>
+                <th>Mata Kuliah</th>
+                <th>Ruangan</th>
+                <th>Dosen</th>
+                <th>SKS</th>
             </tr>
-        <?php endforeach; ?>
-    </table>
-    <footer><a href="index.php">Kembali ke Dashboard</a></footer>
+            <?php foreach ($jadwal as $j): ?>
+                <tr>
+                    <td><?= htmlspecialchars($j['hari']) ?></td>
+                    <td><?= htmlspecialchars($j['jam']) ?></td>
+                    <td><?= htmlspecialchars($j['mata_kuliah']) ?></td>
+                    <td><?= htmlspecialchars($j['ruangan']) ?></td>
+                    <td><?= htmlspecialchars($j['dosen']) ?></td>
+                    <td><?= htmlspecialchars($j['sks']) ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </table>
+    <?php endif; ?>
+
+    <footer>
+        <a href="index.php">Kembali ke Dashboard</a>
+    </footer>
 </body>
 </html>

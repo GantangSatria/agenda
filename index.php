@@ -1,8 +1,10 @@
 <?php
 require 'functions.php';
 
-$jadwal = readData("data/jadwal.json");
-$tugas = readData("data/tugas.json");
+// Ambil semua data dari file serialized
+$data = readData();
+$jadwal = $data['jadwal'];
+$tugas = $data['tugas'];
 
 // Filter jadwal hari ini
 $hariIni = date("l");
@@ -20,6 +22,7 @@ $jadwalHariIni = array_filter($jadwal, fn($j) => $j['hari'] === $hariMap[$hariIn
 // Filter tugas belum selesai
 $tugasBelum = array_filter($tugas, fn($t) => $t['status'] === "Belum Selesai");
 
+// Tugas yang mendekati deadline
 $alerts = tugasMendekatiDeadline($tugas);
 ?>
 <!DOCTYPE html>

@@ -1,16 +1,15 @@
 <?php
-// Baca data JSON
-function readData($filename) {
-    if (!file_exists($filename)) {
-        return [];
+define('DATA_FILE', __DIR__ . '/data.txt');
+
+function readData() {
+    if (!file_exists(DATA_FILE)) {
+        return ['jadwal' => [], 'tugas' => []];
     }
-    $data = file_get_contents($filename);
-    return json_decode($data, true) ?? [];
+    return unserialize(file_get_contents(DATA_FILE));
 }
 
-// Tulis data JSON
-function writeData($filename, $data) {
-    file_put_contents($filename, json_encode($data, JSON_PRETTY_PRINT));
+function writeData($data) {
+    file_put_contents(DATA_FILE, serialize($data));
 }
 
 // Urutkan jadwal berdasarkan hari dan jam
